@@ -1,7 +1,7 @@
 CC = cargo
 CARGO_FLAGS = --release
 
-.PHONY: all build test lint check run clean audit
+.PHONY: all build test bench lint check run clean audit
 
 all: check test build
 
@@ -10,6 +10,11 @@ build:
 
 test:
 	$(CC) test -- --nocapture
+
+bench:
+	$(CC) bench --bench proxy_benchmark
+
+
 
 lint:
 	$(CC) clippy -- -D warnings

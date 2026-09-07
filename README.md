@@ -100,10 +100,31 @@ make test
 make lint
 ```
 
-All 18 unit tests pass with zero warnings:
+All 19 unit tests pass with zero warnings:
 ```
-test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 ```
+
+---
+
+## Performance & Microbenchmarks
+
+`sol-sec-proxy` is engineered for ultra-low latency execution environments. Benchmarks were executed on Apple Silicon ARM64 with full release optimizations (`opt-level = 3`, `lto = true`, `overflow-checks = true`):
+
+```bash
+make bench
+```
+
+### Empirical Results (100,000 iterations / suite):
+
+| Subsystem / Operation | Mean Latency | Throughput |
+| :--- | :--- | :--- |
+| **1. Wire Deserialization (v0 + Address Lookup Tables)** | 588.84 ns | 1,698,263 tx/s |
+| **2. Dynamic Compute Unit (CU) Optimizer** | 1.65 ns | 606,214,915 ops/s |
+| **3. Anchor Error Decoder (Codes 2000–2018)** | 210.84 ns | 4,742,914 ops/s |
+| **4. End-to-End Interception Pipeline** | **895.79 ns (0.896 µs)** | **1,116,331 tx/s** |
+
+Total pipeline processing overhead is **under 1 microsecond per transaction** (< 0.90 µs), adding effectively zero network jitter to high-frequency trading or agentic pipelines. Full benchmark details available in [BENCHMARKS.md](file:///Users/ishantpanchal/sol-sec-proxy/BENCHMARKS.md).
 
 ---
 

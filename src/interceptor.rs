@@ -79,7 +79,11 @@ impl SimulationInterceptor {
 
             let priority_fee = tx.compute_unit_price.unwrap_or(0);
             let requested_cu = tx.compute_unit_limit.unwrap_or(200_000);
-            let avoided_fee = ((requested_cu as u64) * priority_fee) / 1_000_000 + 5_000;
+            let avoided_fee = (requested_cu as u64)
+                .saturating_mul(priority_fee)
+                .checked_div(1_000_000)
+                .unwrap_or(0)
+                .saturating_add(5_000);
 
             InterceptionOutcome::Reverted(InterceptionRevertResult {
                 is_valid: false,

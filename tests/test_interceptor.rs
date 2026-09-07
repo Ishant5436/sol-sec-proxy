@@ -32,6 +32,7 @@ fn test_evaluate_simulation_revert() {
         account_keys: vec![[1u8; 32]],
         recent_blockhash: [2u8; 32],
         instructions: vec![],
+        address_table_lookups: vec![],
         compute_unit_limit: Some(200_000),
         compute_unit_price: Some(10_000), // 10,000 micro-lamports
     };
@@ -75,6 +76,7 @@ fn test_evaluate_simulation_passed() {
         account_keys: vec![[1u8; 32]],
         recent_blockhash: [2u8; 32],
         instructions: vec![],
+        address_table_lookups: vec![],
         compute_unit_limit: Some(500_000),
         compute_unit_price: Some(1_000),
     };

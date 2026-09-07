@@ -32,6 +32,13 @@ pub enum ComputeBudgetInstruction {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AddressTableLookup {
+    pub account_key: [u8; 32],
+    pub writable_indexes: Vec<u8>,
+    pub readonly_indexes: Vec<u8>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParsedTransaction {
     pub version: TransactionVersion,
     pub signatures: Vec<[u8; 64]>,
@@ -39,6 +46,7 @@ pub struct ParsedTransaction {
     pub account_keys: Vec<[u8; 32]>,
     pub recent_blockhash: [u8; 32],
     pub instructions: Vec<CompiledInstruction>,
+    pub address_table_lookups: Vec<AddressTableLookup>,
     pub compute_unit_limit: Option<u32>,
     pub compute_unit_price: Option<u64>,
 }
@@ -70,6 +78,7 @@ pub struct WireReader<'a> {
 impl<'a> WireReader<'a> {
     pub fn new(buffer: &'a [u8]) -> Self {
         assert!(!buffer.is_empty(), "Wire buffer must not be empty");
+        assert!(buffer.len() <= 4096, "Wire buffer max capacity bound");
         Self { buffer, offset: 0 }
     }
 
@@ -78,6 +87,7 @@ impl<'a> WireReader<'a> {
             self.offset <= self.buffer.len(),
             "Offset boundary invariant"
         );
+        assert!(self.buffer.len() <= 4096, "Buffer length bound invariant");
         self.buffer.len().saturating_sub(self.offset)
     }
 
@@ -86,6 +96,7 @@ impl<'a> WireReader<'a> {
             self.offset <= self.buffer.len(),
             "Offset invariant in read_u8"
         );
+        assert!(!self.buffer.is_empty(), "Buffer non-empty invariant");
         if self.offset >= self.buffer.len() {
             return Err(WireError::UnexpectedEndOfBuffer);
         }
@@ -245,6 +256,45 @@ pub fn parse_transaction_wire(raw_bytes: &[u8]) -> Result<ParsedTransaction, Wir
         });
     }
 
+    let mut address_table_lookups = Vec::new();
+    if version == TransactionVersion::V0 && reader.remaining() > 0 {
+        let num_lookups = reader.read_short_vec_len()?;
+        if num_lookups > 64 {
+            return Err(WireError::InvalidEncoding(
+                "Excessive address lookup tables".to_string(),
+            ));
+        }
+        let mut lookup_idx = 0;
+        while lookup_idx < num_lookups {
+            lookup_idx += 1;
+            let key_bytes = reader.read_bytes(32)?;
+            let mut account_key = [0u8; 32];
+            account_key.copy_from_slice(key_bytes);
+
+            let num_writable = reader.read_short_vec_len()?;
+            if num_writable > 256 {
+                return Err(WireError::InvalidEncoding(
+                    "Excessive writable indexes in ALT".to_string(),
+                ));
+            }
+            let writable_slice = reader.read_bytes(num_writable)?;
+
+            let num_readonly = reader.read_short_vec_len()?;
+            if num_readonly > 256 {
+                return Err(WireError::InvalidEncoding(
+                    "Excessive readonly indexes in ALT".to_string(),
+                ));
+            }
+            let readonly_slice = reader.read_bytes(num_readonly)?;
+
+            address_table_lookups.push(AddressTableLookup {
+                account_key,
+                writable_indexes: writable_slice.to_vec(),
+                readonly_indexes: readonly_slice.to_vec(),
+            });
+        }
+    }
+
     assert!(
         account_keys.len() >= header.num_required_signatures as usize,
         "Signature count invariant"
@@ -258,6 +308,7 @@ pub fn parse_transaction_wire(raw_bytes: &[u8]) -> Result<ParsedTransaction, Wir
         account_keys,
         recent_blockhash,
         instructions,
+        address_table_lookups,
         compute_unit_limit: cu_limit,
         compute_unit_price: cu_price,
     })
@@ -271,20 +322,24 @@ pub fn parse_compute_budget_instruction(data: &[u8]) -> Option<ComputeBudgetInst
     match disc {
         1 if data.len() >= 5 => {
             let val = u32::from_le_bytes(data[1..5].try_into().ok()?);
-            Some(ComputeBudgetInstruction::RequestHeapFrame(val))
+            let bounded_val = val.clamp(1024, 262_144);
+            Some(ComputeBudgetInstruction::RequestHeapFrame(bounded_val))
         }
         2 if data.len() >= 5 => {
             let val = u32::from_le_bytes(data[1..5].try_into().ok()?);
-            Some(ComputeBudgetInstruction::SetComputeUnitLimit(val))
+            let bounded_val = val.clamp(1, 1_400_000);
+            Some(ComputeBudgetInstruction::SetComputeUnitLimit(bounded_val))
         }
         3 if data.len() >= 9 => {
             let val = u64::from_le_bytes(data[1..9].try_into().ok()?);
-            Some(ComputeBudgetInstruction::SetComputeUnitPrice(val))
+            let bounded_val = val.min(10_000_000_000);
+            Some(ComputeBudgetInstruction::SetComputeUnitPrice(bounded_val))
         }
         4 if data.len() >= 5 => {
             let val = u32::from_le_bytes(data[1..5].try_into().ok()?);
+            let bounded_val = val.clamp(1, 10 * 1024 * 1024);
             Some(ComputeBudgetInstruction::SetLoadedAccountsDataSizeLimit(
-                val,
+                bounded_val,
             ))
         }
         _ => Some(ComputeBudgetInstruction::Unknown(disc)),

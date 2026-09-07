@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 pub mod config;
 pub mod cu_optimizer;
 pub mod error_decoder;

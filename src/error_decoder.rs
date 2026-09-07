@@ -86,10 +86,25 @@ pub fn decode_anchor_error_code(code: u32) -> (&'static str, &'static str, &'sta
             "ConstraintAssociated",
             "Associated token constraint violated",
         ),
+        2010 => (
+            "AnchorConstraint",
+            "ConstraintAssociatedInit",
+            "An associated init constraint was violated",
+        ),
+        2011 => (
+            "AnchorConstraint",
+            "ConstraintClose",
+            "A close constraint was violated",
+        ),
         2012 => (
             "AnchorConstraint",
             "ConstraintAddress",
             "An address constraint was violated",
+        ),
+        2013 => (
+            "AnchorConstraint",
+            "ConstraintZero",
+            "An address expected to be zero was not zero",
         ),
         2014 => (
             "AnchorConstraint",
@@ -100,6 +115,21 @@ pub fn decode_anchor_error_code(code: u32) -> (&'static str, &'static str, &'sta
             "AnchorConstraint",
             "ConstraintTokenOwner",
             "Token account owner constraint violated",
+        ),
+        2016 => (
+            "AnchorConstraint",
+            "ConstraintTokenProgram",
+            "A token program constraint was violated",
+        ),
+        2017 => (
+            "AnchorConstraint",
+            "ConstraintMintMintAuthority",
+            "A token mint mint authority constraint was violated",
+        ),
+        2018 => (
+            "AnchorConstraint",
+            "ConstraintTokenTokenOwner",
+            "A token token owner constraint was violated",
         ),
 
         // Require expressions (2500-2599)

@@ -106,9 +106,11 @@ mod tests {
 
     #[test]
     fn test_config_invariants() {
-        let mut cfg = ProxyConfig::default();
-        cfg.port = 8080;
-        cfg.cu_safety_buffer_percent = 20;
+        let cfg = ProxyConfig {
+            port: 8080,
+            cu_safety_buffer_percent: 20,
+            ..ProxyConfig::default()
+        };
         assert!(cfg.port > 0);
         assert!(cfg.cu_safety_buffer_percent <= 100);
         assert!(cfg.max_cu_limit <= 1_400_000);

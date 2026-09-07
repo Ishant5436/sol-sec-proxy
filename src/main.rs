@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 use sol_sec_proxy::config::ProxyConfig;
 use sol_sec_proxy::server::ProxyServer;
 

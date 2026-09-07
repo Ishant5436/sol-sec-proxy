@@ -31,7 +31,10 @@ pub fn calculate_optimal_compute_units(
     );
     assert!(buffer_percent <= 100, "Buffer percent bound");
 
-    let buffer = (units_consumed * (buffer_percent as u64)) / 100;
+    let buffer = units_consumed
+        .saturating_mul(buffer_percent as u64)
+        .checked_div(100)
+        .unwrap_or(0);
     let target = units_consumed.saturating_add(buffer);
 
     let recommended = (target as u32).clamp(5_000, max_cu_limit);
@@ -39,7 +42,10 @@ pub fn calculate_optimal_compute_units(
     let (saved_cu, saved_fee) = match original_requested_cu {
         Some(original) if original > recommended => {
             let diff = original.saturating_sub(recommended);
-            let fee_saved = ((diff as u64) * priority_fee_micro_lamports) / 1_000_000;
+            let fee_saved = (diff as u64)
+                .saturating_mul(priority_fee_micro_lamports)
+                .checked_div(1_000_000)
+                .unwrap_or(0);
             (diff, fee_saved)
         }
         _ => (0, 0),

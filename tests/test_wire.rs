@@ -91,4 +91,63 @@ fn test_parse_wire_v0_synthetic() {
     let parsed = parse_transaction_wire(&buf).expect("Should parse v0 transaction");
     assert_eq!(parsed.version, TransactionVersion::V0);
     assert_eq!(parsed.compute_unit_price, Some(50_000));
+    assert!(parsed.address_table_lookups.is_empty());
+}
+
+#[test]
+fn test_parse_wire_v0_with_address_lookup_tables() {
+    let mut buf = Vec::new();
+    // 1 signature
+    buf.push(1u8);
+    buf.extend_from_slice(&[0x11u8; 64]);
+
+    // V0 indicator
+    buf.push(0x80u8);
+    // Header
+    buf.push(1u8); // num_required_signatures
+    buf.push(0u8); // num_readonly_signed
+    buf.push(1u8); // num_readonly_unsigned
+
+    // Accounts: 2 accounts
+    buf.push(2u8);
+    buf.extend_from_slice(&[0x22u8; 32]);
+    let cb_key = bs58::decode(COMPUTE_BUDGET_PROGRAM_ID_STR)
+        .into_vec()
+        .unwrap();
+    buf.extend_from_slice(&cb_key);
+
+    // Recent blockhash
+    buf.extend_from_slice(&[0x33u8; 32]);
+
+    // Instructions: 1 instruction
+    buf.push(1u8);
+    buf.push(1u8); // program_id_index
+    buf.push(0u8); // accounts count
+    let limit: u32 = 800_000;
+    let mut data = vec![2u8];
+    data.extend_from_slice(&limit.to_le_bytes());
+    buf.push(data.len() as u8);
+    buf.extend_from_slice(&data);
+
+    // Address Lookup Tables (ALTs): 1 table
+    buf.push(1u8); // 1 ALT lookup
+    buf.extend_from_slice(&[0x44u8; 32]); // ALT account key
+                                          // Writable indexes: [1, 3]
+    buf.push(2u8);
+    buf.push(1u8);
+    buf.push(3u8);
+    // Readonly indexes: [2, 4, 5]
+    buf.push(3u8);
+    buf.push(2u8);
+    buf.push(4u8);
+    buf.push(5u8);
+
+    let parsed = parse_transaction_wire(&buf).expect("Should parse v0 transaction with ALT");
+    assert_eq!(parsed.version, TransactionVersion::V0);
+    assert_eq!(parsed.compute_unit_limit, Some(800_000));
+    assert_eq!(parsed.address_table_lookups.len(), 1);
+    let alt = &parsed.address_table_lookups[0];
+    assert_eq!(alt.account_key, [0x44u8; 32]);
+    assert_eq!(alt.writable_indexes, vec![1, 3]);
+    assert_eq!(alt.readonly_indexes, vec![2, 4, 5]);
 }
