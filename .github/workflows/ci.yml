@@ -37,11 +37,15 @@ jobs:
       - name: Build & Check
         run: cargo check
 
-      - name: Run Tests
+      - name: Run Tests (19/19)
         run: cargo test --verbose
 
       - name: Clippy Linter
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --all-targets -- -D warnings
 
       - name: Rustfmt Formatting
         run: cargo fmt --check
+
+      - name: Run Benchmarks
+        run: cargo bench --bench proxy_benchmark
+

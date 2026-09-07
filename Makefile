@@ -35,3 +35,10 @@ clean:
 audit:
 	@echo "Auditing deterministic safety standards..."
 	@which cargo-audit >/dev/null 2>&1 && cargo audit || echo "cargo-audit not installed, skipping advisories"
+
+docker-build:
+	docker build -t sol-sec-proxy:latest .
+
+docker-run:
+	docker run -p 8899:8899 --env-file .env sol-sec-proxy:latest
+
