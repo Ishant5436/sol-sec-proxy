@@ -1,0 +1,39 @@
+{
+  "name": "ix_insufficient_funds",
+  "err": {
+    "InstructionError": [
+      0,
+      "InsufficientFunds"
+    ]
+  },
+  "logs": [
+    "Program 11111111111111111111111111111111 invoke [1]",
+    "Program 11111111111111111111111111111111 failed: insufficient funds for instruction"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "InsufficientFunds",
+    "retry_class": "NeedsFunds",
+    "instruction_index": 0,
+    "program_id": "11111111111111111111111111111111"
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}

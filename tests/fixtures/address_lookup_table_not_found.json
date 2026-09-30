@@ -1,0 +1,10 @@
+{
+  "name": "address_lookup_table_not_found",
+  "err": "AddressLookupTableNotFound",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "AddressLookupTableNotFound",
+    "retry_class": "FixInputs"
+  }
+}

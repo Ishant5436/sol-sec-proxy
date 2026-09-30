@@ -1,0 +1,40 @@
+{
+  "name": "ix_program_failed_to_complete",
+  "err": {
+    "InstructionError": [
+      4,
+      "ProgramFailedToComplete"
+    ]
+  },
+  "logs": [
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]",
+    "Program log: panicked at programs/app/src/lib.rs:12:5: index out of bounds",
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: SBF program panicked"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "ProgramFailedToComplete",
+    "retry_class": "Fatal",
+    "instruction_index": 4,
+    "program_id": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}

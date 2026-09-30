@@ -1,0 +1,47 @@
+{
+  "name": "token_transfer_insufficient_funds",
+  "err": {
+    "InstructionError": [
+      1,
+      {
+        "Custom": 1
+      }
+    ]
+  },
+  "logs": [
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [1]",
+    "Program log: Instruction: Transfer",
+    "Program log: Error: insufficient funds",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 4380 of 200000 compute units",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA failed: custom program error: 0x1"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "Custom",
+    "retry_class": "NeedsFunds",
+    "instruction_index": 1,
+    "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "program_name": "SPL Token Program",
+    "custom_code": 1,
+    "custom_name": "InsufficientFunds"
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "insufficient_funds_for_fee",
+  "err": "InsufficientFundsForFee",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "InsufficientFundsForFee",
+    "retry_class": "NeedsFunds"
+  }
+}

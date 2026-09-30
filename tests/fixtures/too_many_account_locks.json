@@ -1,0 +1,10 @@
+{
+  "name": "too_many_account_locks",
+  "err": "TooManyAccountLocks",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "TooManyAccountLocks",
+    "retry_class": "FixInputs"
+  }
+}

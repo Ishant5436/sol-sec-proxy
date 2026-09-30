@@ -1,0 +1,15 @@
+{
+  "name": "program_execution_temporarily_restricted",
+  "err": {
+    "ProgramExecutionTemporarilyRestricted": {
+      "account_index": 1
+    }
+  },
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "ProgramExecutionTemporarilyRestricted",
+    "retry_class": "RetryLater",
+    "action_contains": "Affected account index: 1"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "signature_failure",
+  "err": "SignatureFailure",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "SignatureFailure",
+    "retry_class": "FixInputs"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "insufficient_funds_for_rent",
+  "err": {
+    "InsufficientFundsForRent": {
+      "account_index": 2
+    }
+  },
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "InsufficientFundsForRent",
+    "retry_class": "NeedsFunds",
+    "action_contains": "Affected account index: 2"
+  }
+}

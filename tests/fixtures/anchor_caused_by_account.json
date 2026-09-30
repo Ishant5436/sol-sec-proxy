@@ -1,0 +1,46 @@
+{
+  "name": "anchor_caused_by_account",
+  "err": {
+    "InstructionError": [
+      4,
+      {
+        "Custom": 2000
+      }
+    ]
+  },
+  "logs": [
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]",
+    "Program log: Instruction: Deposit",
+    "Program log: AnchorError caused by account: vault. Error Code: ConstraintMut. Error Number: 2000. Error Message: A mut constraint was violated.",
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d0"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "Custom",
+    "retry_class": "FixInputs",
+    "instruction_index": 4,
+    "program_id": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+    "custom_code": 2000,
+    "custom_name": "ConstraintMut",
+    "custom_account": "vault"
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "blockhash_not_found",
+  "err": "BlockhashNotFound",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "BlockhashNotFound",
+    "retry_class": "RebuildWithFreshBlockhash",
+    "instruction_index": null,
+    "program_id": null
+  }
+}

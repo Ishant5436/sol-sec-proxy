@@ -1,0 +1,14 @@
+{
+  "name": "unknown_transaction_variant",
+  "err": {
+    "FutureVariant": {
+      "foo": 1
+    }
+  },
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind_prefix": "Unknown(",
+    "retry_class": "Unknown"
+  }
+}

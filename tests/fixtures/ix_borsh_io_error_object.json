@@ -1,0 +1,41 @@
+{
+  "name": "ix_borsh_io_error_object",
+  "err": {
+    "InstructionError": [
+      4,
+      {
+        "BorshIoError": "Unexpected length of input"
+      }
+    ]
+  },
+  "logs": [
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]",
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: Failed to serialize or deserialize account data: Unexpected length of input"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "BorshIoError",
+    "retry_class": "FixInputs",
+    "instruction_index": 4,
+    "program_id": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}

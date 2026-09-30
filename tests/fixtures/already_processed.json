@@ -1,0 +1,10 @@
+{
+  "name": "already_processed",
+  "err": "AlreadyProcessed",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "AlreadyProcessed",
+    "retry_class": "AlreadyLanded"
+  }
+}

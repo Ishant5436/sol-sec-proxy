@@ -1,0 +1,10 @@
+{
+  "name": "program_account_not_found",
+  "err": "ProgramAccountNotFound",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "ProgramAccountNotFound",
+    "retry_class": "FixInputs"
+  }
+}

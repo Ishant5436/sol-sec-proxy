@@ -1,0 +1,10 @@
+{
+  "name": "would_exceed_max_block_cost_limit",
+  "err": "WouldExceedMaxBlockCostLimit",
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "WouldExceedMaxBlockCostLimit",
+    "retry_class": "RetryLater"
+  }
+}

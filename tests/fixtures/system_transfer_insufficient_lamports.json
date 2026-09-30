@@ -1,0 +1,45 @@
+{
+  "name": "system_transfer_insufficient_lamports",
+  "err": {
+    "InstructionError": [
+      0,
+      {
+        "Custom": 1
+      }
+    ]
+  },
+  "logs": [
+    "Program 11111111111111111111111111111111 invoke [1]",
+    "Transfer: insufficient lamports 5000, need 1000000",
+    "Program 11111111111111111111111111111111 failed: custom program error: 0x1"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "Custom",
+    "retry_class": "NeedsFunds",
+    "instruction_index": 0,
+    "program_id": "11111111111111111111111111111111",
+    "program_name": "System Program",
+    "custom_code": 1,
+    "custom_name": "ResultWithNegativeLamports"
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}

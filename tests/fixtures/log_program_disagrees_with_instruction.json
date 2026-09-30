@@ -1,0 +1,42 @@
+{
+  "name": "log_program_disagrees_with_instruction",
+  "err": {
+    "InstructionError": [
+      0,
+      {
+        "Custom": 6000
+      }
+    ]
+  },
+  "logs": [
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [1]",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA failed: custom program error: 0x1770"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "Custom",
+    "retry_class": "FixInputs",
+    "instruction_index": 0,
+    "program_id": "11111111111111111111111111111111",
+    "action_contains": "differs from the instruction"
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}

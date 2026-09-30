@@ -1,0 +1,13 @@
+{
+  "name": "duplicate_instruction",
+  "err": {
+    "DuplicateInstruction": 1
+  },
+  "logs": [],
+  "expect": {
+    "source": "transaction",
+    "kind": "DuplicateInstruction",
+    "retry_class": "FixInputs",
+    "instruction_index": 1
+  }
+}

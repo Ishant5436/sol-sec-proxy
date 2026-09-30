@@ -1,0 +1,16 @@
+{
+  "name": "unknown_instruction_variant",
+  "err": {
+    "InstructionError": [
+      0,
+      "BrandNewInstructionError"
+    ]
+  },
+  "logs": [],
+  "expect": {
+    "source": "instruction",
+    "kind_prefix": "Unknown(",
+    "retry_class": "Unknown",
+    "instruction_index": 0
+  }
+}

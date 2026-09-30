@@ -1,0 +1,10 @@
+{
+  "name": "account_not_found",
+  "err": "AccountNotFound",
+  "logs": null,
+  "expect": {
+    "source": "transaction",
+    "kind": "AccountNotFound",
+    "retry_class": "NeedsFunds"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "cpi_inner_anchor_error",
+  "err": {
+    "InstructionError": [
+      5,
+      {
+        "Custom": 6003
+      }
+    ]
+  },
+  "logs": [
+    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]",
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [2]",
+    "Program log: AnchorError thrown in programs/pool/src/lib.rs:31. Error Code: PoolPaused. Error Number: 6003. Error Message: Pool is paused.",
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1773",
+    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 failed: custom program error: 0x1773"
+  ],
+  "expect": {
+    "source": "instruction",
+    "kind": "Custom",
+    "retry_class": "FixInputs",
+    "instruction_index": 5,
+    "program_id": "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+    "custom_code": 6003,
+    "custom_name": "PoolPaused",
+    "custom_message": "Pool is paused."
+  },
+  "tx": {
+    "account_keys": [
+      "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "ComputeBudget111111111111111111111111111111",
+      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+    ],
+    "instruction_program_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}
