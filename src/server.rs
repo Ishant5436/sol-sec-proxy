@@ -1,5 +1,5 @@
 use crate::config::ProxyConfig;
-use crate::interceptor::{InterceptionOutcome, SimulationInterceptor};
+use crate::interceptor::{InterceptionOutcome, InterceptionRevertResult, SimulationInterceptor};
 use crate::rpc_client::SolanaRpcClient;
 use http_body_util::{combinators::BoxBody, BodyExt, Full};
 use hyper::body::{Bytes, Incoming};
@@ -189,23 +189,7 @@ async fn handle_send_transaction(
     };
 
     match interceptor.process_transaction(encoded_str).await {
-        Ok((_, InterceptionOutcome::Reverted(rev))) => {
-            serde_json::json!({
-                "jsonrpc": "2.0",
-                "id": req_id,
-                "error": {
-                    "code": -32002,
-                    "message": format!("Pre-flight firewall: {}", rev.decoded_error.message),
-                    "data": {
-                        "category": rev.decoded_error.category,
-                        "errorName": rev.decoded_error.error_name,
-                        "instructionIndex": rev.decoded_error.instruction_index,
-                        "avoidedWastedFeeLamports": rev.avoided_wasted_fee_lamports,
-                        "logs": rev.logs
-                    }
-                }
-            })
-        }
+        Ok((_, InterceptionOutcome::Reverted(rev))) => revert_error_json(req_id, &rev),
         Ok((_, InterceptionOutcome::Passed(_))) => rpc_client
             .forward_raw_json_rpc(json_req)
             .await
@@ -224,6 +208,46 @@ async fn handle_send_transaction(
             })
         }
     }
+}
+
+/// Builds the JSON-RPC error returned when pre-flight simulation reverts.
+///
+/// Existing `data` fields are unchanged; `data.diagnosis` is additive. For
+/// errors that are not program custom errors the legacy decoder has nothing
+/// meaningful to say, so the message uses the diagnosis instead.
+pub fn revert_error_json(
+    req_id: serde_json::Value,
+    rev: &InterceptionRevertResult,
+) -> serde_json::Value {
+    assert!(!rev.diagnosis.kind.is_empty(), "Diagnosis kind invariant");
+    assert!(!rev.is_valid, "Reverted results are never valid");
+
+    let is_custom = rev.diagnosis.custom_error.code.is_some() || rev.diagnosis.kind == "Custom";
+    let message = if is_custom {
+        format!("Pre-flight firewall: {}", rev.decoded_error.message)
+    } else {
+        format!(
+            "Pre-flight firewall: {}: {}",
+            rev.diagnosis.kind, rev.diagnosis.suggested_action
+        )
+    };
+
+    serde_json::json!({
+        "jsonrpc": "2.0",
+        "id": req_id,
+        "error": {
+            "code": -32002,
+            "message": message,
+            "data": {
+                "category": rev.decoded_error.category,
+                "errorName": rev.decoded_error.error_name,
+                "instructionIndex": rev.decoded_error.instruction_index,
+                "avoidedWastedFeeLamports": rev.avoided_wasted_fee_lamports,
+                "logs": rev.logs,
+                "diagnosis": rev.diagnosis
+            }
+        }
+    })
 }
 
 fn boxed_body<B: Into<Bytes>>(body: B) -> BoxBody<Bytes, Infallible> {
