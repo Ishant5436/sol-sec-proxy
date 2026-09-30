@@ -17,6 +17,23 @@ fn test_extract_instruction_error_code() {
 }
 
 #[test]
+fn test_extract_error_code_never_panics_on_odd_shapes() {
+    let shapes = [
+        serde_json::json!(null),
+        serde_json::json!([1, 2, 3]),
+        serde_json::json!(42),
+        serde_json::json!("BlockhashNotFound"),
+        serde_json::json!({"InstructionError": "nope"}),
+        serde_json::json!({"InstructionError": [300, {"Custom": 5_000_000_000u64}]}),
+    ];
+    for shape in &shapes {
+        let (code, idx) = extract_instruction_error_code(shape);
+        assert_eq!(code, 0);
+        assert_eq!(idx, None);
+    }
+}
+
+#[test]
 fn test_evaluate_simulation_revert() {
     let cfg = ProxyConfig::default();
     let interceptor = SimulationInterceptor::new(cfg);

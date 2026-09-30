@@ -10,9 +10,12 @@ pub struct DecodedError {
     pub logs_snippet: Vec<String>,
 }
 
+/// Maps a `Custom(u32)` program error code to (category, name, message).
+///
+/// Total over all `u32` values: RPC nodes can return any u32, so there is no
+/// input-derived assertion here. Unknown values fall through to a generic entry.
 pub fn decode_anchor_error_code(code: u32) -> (&'static str, &'static str, &'static str) {
-    assert!(code <= 1_000_000, "Error code upper bound invariant");
-    match code {
+    let entry = match code {
         // Framework instruction errors (100-199)
         100 => (
             "AnchorFramework",
@@ -219,16 +222,22 @@ pub fn decode_anchor_error_code(code: u32) -> (&'static str, &'static str, &'sta
             "UnknownCustomError",
             "Unknown custom program error code",
         ),
-    }
+    };
+
+    assert!(!entry.0.is_empty(), "Category table invariant");
+    assert!(!entry.1.is_empty(), "Name table invariant");
+    entry
 }
+
+const MAX_LOG_SCAN_LINES: usize = 100;
 
 pub fn decode_simulation_error(
     instruction_idx: Option<u8>,
     custom_code: u32,
     logs: &[String],
 ) -> DecodedError {
-    assert!(custom_code <= 1_000_000, "Custom code validation bound");
-    assert!(logs.len() <= 512, "Log count upper bound");
+    // No input-derived asserts: any u32 code and any log count is a valid RPC
+    // response. Log scanning below is bounded by MAX_LOG_SCAN_LINES instead.
 
     let (category, name, fallback_msg) = decode_anchor_error_code(custom_code);
 
@@ -236,7 +245,7 @@ pub fn decode_simulation_error(
     let mut logs_snippet = Vec::new();
 
     let mut loop_idx = 0;
-    while loop_idx < logs.len() && loop_idx < 100 {
+    while loop_idx < logs.len() && loop_idx < MAX_LOG_SCAN_LINES {
         let line = &logs[loop_idx];
         loop_idx += 1;
 

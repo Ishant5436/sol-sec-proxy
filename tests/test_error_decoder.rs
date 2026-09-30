@@ -52,3 +52,24 @@ fn test_custom_error_log_fallback() {
     assert_eq!(decoded.error_code, 1);
     assert_eq!(decoded.logs_snippet.len(), 2);
 }
+
+#[test]
+fn test_u32_max_custom_code_does_not_panic() {
+    let (cat, name, _) = decode_anchor_error_code(u32::MAX);
+    assert_eq!(cat, "AnchorCustom");
+    assert_eq!(name, "CustomProgramError");
+
+    let decoded = decode_simulation_error(Some(0), u32::MAX, &[]);
+    assert_eq!(decoded.error_code, u32::MAX);
+    assert!(!decoded.message.is_empty());
+}
+
+#[test]
+fn test_more_than_512_logs_does_not_panic() {
+    let logs: Vec<String> = (0..2_000)
+        .map(|i| format!("Program log: line {i}"))
+        .collect();
+    let decoded = decode_simulation_error(Some(1), 6000, &logs);
+    assert_eq!(decoded.error_code, 6000);
+    assert!(decoded.logs_snippet.len() <= 5);
+}

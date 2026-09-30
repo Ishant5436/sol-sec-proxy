@@ -117,21 +117,25 @@ impl SimulationInterceptor {
     }
 }
 
+/// Extracts `(custom_code, instruction_index)` from an RPC `err` value.
+///
+/// Never panics on any JSON shape. Values that do not fit (an index above
+/// `u8::MAX`, a code above `u32::MAX`) are dropped instead of truncated.
+/// Non-custom errors yield code 0; see the diagnostics module for those.
 pub fn extract_instruction_error_code(err_val: &serde_json::Value) -> (u32, Option<u8>) {
-    assert!(!err_val.is_null(), "Error value cannot be null");
-    assert!(
-        err_val.is_object() || err_val.is_string(),
-        "Error structure invariant"
-    );
-
-    if let Some(ix_err) = err_val.get("InstructionError") {
-        if let Some(arr) = ix_err.as_array() {
-            let idx = arr.first().and_then(|v| v.as_u64()).map(|u| u as u8);
-            if let Some(custom_obj) = arr.get(1).and_then(|v| v.get("Custom")) {
-                let code = custom_obj.as_u64().unwrap_or(0) as u32;
-                return (code, idx);
-            }
-        }
-    }
-    (0, None)
+    let arr = match err_val.get("InstructionError").and_then(|v| v.as_array()) {
+        Some(a) => a,
+        None => return (0, None),
+    };
+    let idx = arr
+        .first()
+        .and_then(|v| v.as_u64())
+        .and_then(|u| u8::try_from(u).ok());
+    let code = arr
+        .get(1)
+        .and_then(|v| v.get("Custom"))
+        .and_then(|v| v.as_u64())
+        .and_then(|c| u32::try_from(c).ok())
+        .unwrap_or(0);
+    (code, idx)
 }
