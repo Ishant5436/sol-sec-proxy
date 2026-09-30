@@ -3,6 +3,7 @@ use crate::cu_optimizer::{
     analyze_account_write_locks, calculate_optimal_compute_units, AccountLockAnalysis,
     CuOptimizationRecommendation,
 };
+use crate::diagnostics::{diagnose, Diagnosis};
 use crate::error_decoder::{decode_simulation_error, DecodedError};
 use crate::rpc_client::{RpcError, SimulationRpcResponse, SolanaRpcClient};
 use crate::wire::{decode_transaction_from_wire_string, ParsedTransaction};
@@ -21,6 +22,7 @@ pub struct InterceptionRevertResult {
     pub decoded_error: DecodedError,
     pub avoided_wasted_fee_lamports: u64,
     pub logs: Vec<String>,
+    pub diagnosis: Box<Diagnosis>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -76,6 +78,7 @@ impl SimulationInterceptor {
         if let Some(err_val) = &sim.err {
             let (code, ix_idx) = extract_instruction_error_code(err_val);
             let decoded = decode_simulation_error(ix_idx, code, &logs);
+            let diagnosis = diagnose(err_val, &logs, Some(tx));
 
             let priority_fee = tx.compute_unit_price.unwrap_or(0);
             let requested_cu = tx.compute_unit_limit.unwrap_or(200_000);
@@ -90,6 +93,7 @@ impl SimulationInterceptor {
                 decoded_error: decoded,
                 avoided_wasted_fee_lamports: avoided_fee,
                 logs,
+                diagnosis: Box::new(diagnosis),
             })
         } else {
             let units = sim.units_consumed.unwrap_or(5_000);
