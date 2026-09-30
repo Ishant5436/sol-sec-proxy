@@ -87,6 +87,49 @@ The proxy will listen on `http://127.0.0.1:8899`. Point your `@solana/web3.js` C
 
 ---
 
+## Agent-Actionable Failure Diagnostics
+
+When pre-flight simulation fails, the JSON-RPC error `data` now carries an additive `diagnosis` object next to the existing fields (`category`, `errorName`, `instructionIndex`, `avoidedWastedFeeLamports`, `logs`, which are unchanged). It is built offline from the simulation `err` value and logs; no IDLs or extra network calls are involved.
+
+| Field | Meaning |
+| --- | --- |
+| `source` | `"transaction"` or `"instruction"` |
+| `kind` | Variant name (for example `BlockhashNotFound`, `Custom`), or `Unknown(<raw json>)` |
+| `instruction_index` | Failing instruction, when the error carries one |
+| `program_id` / `program_name` | Program of the failing instruction (from `account_keys[program_id_index]`, falling back to the last `Program <id> failed:` log line). Names are set only for System, SPL Token, Token-2022, Associated Token Account, Compute Budget and Memo v2 |
+| `custom_error` | `code`, `name`, `message`, `account`, parsed from Anchor log lines or `custom program error: 0x..` |
+| `retry_class` | `RebuildWithFreshBlockhash`, `AlreadyLanded`, `NeedsFunds`, `RaiseComputeLimit`, `FixInputs`, `RetryLater`, `Fatal` or `Unknown` |
+| `suggested_action` | One sentence for the caller |
+| `logs_snippet` | Up to 5 failure-related log lines |
+
+Example `diagnosis` for an Anchor error (produced by the test suite's decoder, not hand-written):
+
+```json
+{
+  "source": "instruction",
+  "kind": "Custom",
+  "instruction_index": 0,
+  "program_id": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+  "program_name": null,
+  "custom_error": {
+    "code": 6001,
+    "name": "SlippageExceeded",
+    "message": "Price slippage limit exceeded.",
+    "account": null
+  },
+  "retry_class": "FixInputs",
+  "suggested_action": "Read the program error name and message, then correct the instruction inputs. Program error: SlippageExceeded (6001).",
+  "logs_snippet": [
+    "Program log: AnchorError thrown in programs/dex/src/instructions/swap.rs:88. Error Code: SlippageExceeded. Error Number: 6001. Error Message: Price slippage limit exceeded.",
+    "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1771"
+  ]
+}
+```
+
+Limits: `retry_class` is a heuristic per error variant (see the reasoning comments in `src/retry.rs`), not a guarantee. Program-specific error names are only reported when the logs contain them. Unrecognised variants are reported as `Unknown(...)` and never crash the proxy.
+
+---
+
 ## Testing & Quality Gate
 
 ```bash
@@ -97,9 +140,9 @@ make test
 make lint
 ```
 
-All 19 unit tests pass with zero warnings:
+All 94 tests pass with zero warnings:
 ```
-test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. (summed across unit and integration test binaries)
 ```
 
 ---
