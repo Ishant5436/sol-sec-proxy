@@ -6,4 +6,5 @@ pub mod error_decoder;
 pub mod interceptor;
 pub mod rpc_client;
 pub mod server;
+pub mod tx_error;
 pub mod wire;
