@@ -29,6 +29,57 @@ pub struct Diagnosis {
     pub logs_snippet: Vec<String>,
 }
 
+struct KnownProgramError {
+    program_id: &'static str,
+    code: u32,
+    name: &'static str,
+    class: RetryClass,
+    action: &'static str,
+}
+
+/// Documented custom error codes of System and SPL Token (variant order taken
+/// from `SystemError` in anza-xyz/solana-sdk and `TokenError` on docs.rs).
+const KNOWN_PROGRAM_ERRORS: &[KnownProgramError] = &[
+    // System 0: the address is taken, so the same create can never succeed.
+    KnownProgramError {
+        program_id: "11111111111111111111111111111111",
+        code: 0,
+        name: "AccountAlreadyInUse",
+        class: RetryClass::FixInputs,
+        action: "The account address already exists; use a new address or skip creation.",
+    },
+    // System 1: source lacks lamports, which is a funding problem rather than bad inputs.
+    KnownProgramError {
+        program_id: "11111111111111111111111111111111",
+        code: 1,
+        name: "ResultWithNegativeLamports",
+        class: RetryClass::NeedsFunds,
+        action: "The source account lacks lamports for this transfer; fund it, then resend.",
+    },
+    // Token 0: an account would not be rent exempt; adding lamports resolves it.
+    KnownProgramError {
+        program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        code: 0,
+        name: "NotRentExempt",
+        class: RetryClass::NeedsFunds,
+        action: "A token account is not rent exempt; add lamports to it, then resend.",
+    },
+    // Token 1: the token balance is too low, so the owner must receive tokens first.
+    KnownProgramError {
+        program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        code: 1,
+        name: "InsufficientFunds",
+        class: RetryClass::NeedsFunds,
+        action: "The token account balance is too low; acquire tokens or lower the amount.",
+    },
+];
+
+fn known_program_error(program_id: &str, code: u32) -> Option<&'static KnownProgramError> {
+    KNOWN_PROGRAM_ERRORS
+        .iter()
+        .find(|row| row.program_id == program_id && row.code == code)
+}
+
 fn is_interesting(line: &str) -> bool {
     line.contains("failed") || line.contains("Error") || line.contains("panicked")
 }
@@ -78,15 +129,27 @@ fn compose_action(
 /// `tx` is optional; without it, program attribution falls back to the logs.
 pub fn diagnose(err: &Value, logs: &[String], tx: Option<&ParsedTransaction>) -> Diagnosis {
     let parsed = parse_rpc_error(err);
-    let policy = classify(parsed.source, &parsed.kind);
+    let mut policy = classify(parsed.source, &parsed.kind);
 
-    let custom = if parsed.source == ErrorSource::Instruction && parsed.kind == "Custom" {
+    let mut custom = if parsed.source == ErrorSource::Instruction && parsed.kind == "Custom" {
         extract_custom_error(logs, parsed.custom_code)
     } else {
         CustomErrorInfo::default()
     };
 
     let attribution = attribute(tx, parsed.instruction_index, logs);
+
+    // A few well-known programs have documented custom codes with a more
+    // precise recovery than the generic `Custom -> FixInputs` row.
+    if let (Some(pid), Some(code)) = (attribution.program_id.as_deref(), custom.code) {
+        if let Some(row) = known_program_error(pid, code) {
+            if custom.name.is_none() {
+                custom.name = Some(row.name.to_string());
+            }
+            policy.class = row.class;
+            policy.action = row.action;
+        }
+    }
     let name = attribution
         .program_id
         .as_deref()
