@@ -1,5 +1,6 @@
 #![deny(warnings)]
 
+pub mod anchor_logs;
 pub mod config;
 pub mod cu_optimizer;
 pub mod error_decoder;
